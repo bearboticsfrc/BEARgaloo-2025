@@ -1,22 +1,21 @@
 package frc.robot.subsystems.manipulator;
 
+import bearlib.motor.deserializer.MotorParser;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.ClosedLoopSlot;
+import com.revrobotics.spark.SparkBase;
+import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.SparkMaxConfig;
-
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.manipulator.ArmConstants.ArmPositions;
-import frc.robot.util.MotorConfig;
-import frc.robot.util.MotorConfig.MotorBuilder;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.function.DoubleSupplier;
@@ -25,36 +24,51 @@ public class ArmSubsystem extends SubsystemBase {
   private String name;
   private RelativeEncoder motorEncoder;
   private SparkClosedLoopController motorPid;
-  private SparkMax motor;
-  private SparkMax followerMotor;
+  private SparkBase motor;
+  //  private SparkBase followerMotor;
 
   private HashMap<String, DoubleLogEntry> dataLogs = new HashMap<String, DoubleLogEntry>();
 
-  public ArmSubsystem(MotorBuilder motorConstants, MotorBuilder followerMotorConstants) {
-    this.name = motorConstants.getName();
+  public ArmSubsystem() {
+    this.name = "Arm";
 
-    this.motor =
-        new SparkMax(motorConstants.getMotorPort(), MotorType.kBrushless);
-    this.followerMotor =
-        new SparkMax(
-            followerMotorConstants.getMotorPort(), MotorType.kBrushless);
+    File directory = new File(Filesystem.getDeployDirectory(), "motors/arm");
+
+    try {
+      motor =
+          new MotorParser(directory)
+              .withMotor("motor.json")
+              .withEncoder("encoder.json")
+              .withPidf("pid0.json", 0)
+              .withPidf("pid1.json", 1)
+              .configureAsync();
+
+      // Don't need to hold a reference, just configure...
+      new MotorParser(directory).withMotor("follower.json").configureAsync();
+
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to configure arm motor!", exception);
+    }
+
+    //   this.motor = new SparkMax(motorConstants.getMotorPort(), MotorType.kBrushless);
+    //  this.followerMotor = new SparkMax(followerMotorConstants.getMotorPort(),
+    // MotorType.kBrushless);
 
     this.motorEncoder = motor.getEncoder();
     this.motorPid = motor.getClosedLoopController();
-    SparkMaxConfig config = new SparkMaxConfig();
-    config.follow(motorConstants.getMotorPort()).inverted(true);
+    //   SparkMaxConfig config = new SparkMaxConfig();
+    //   config.follow(motorConstants.getMotorPort()).inverted(true);
 
+    //    MotorConfig.fromMotorConstants(motor, motorEncoder, motorConstants)
+    //        .configureMotor()
+    //        .configurePID(motorConstants.getMotorPid(0), 0)
+    //        .configurePID(motorConstants.getMotorPid(1), 1)
+    //        .burnFlash();
 
-    MotorConfig.fromMotorConstants(motor, motorEncoder, motorConstants)
-        .configureMotor()
-        .configurePID(motorConstants.getMotorPid(0), 0)
-        .configurePID(motorConstants.getMotorPid(1), 1)
-        .burnFlash();
-
-    MotorConfig.fromMotorConstants(
-            followerMotor, followerMotor.getEncoder(), followerMotorConstants)
-        .configureMotor()
-        .burnFlash();
+    //   MotorConfig.fromMotorConstants(
+    //           followerMotor, followerMotor.getEncoder(), followerMotorConstants)
+    //       .configureMotor()
+    //       .burnFlash();
 
     setupShuffleboardTab(RobotConstants.MANIPULATOR_SYSTEM_TAB);
     setupDataLogging(DataLogManager.getLog());
@@ -71,9 +85,9 @@ public class ArmSubsystem extends SubsystemBase {
     shuffleboardTab
         .addNumber(String.format("%s M Amps", name), this.motor::getAppliedOutput)
         .withSize(1, 1);
-    shuffleboardTab
-        .addNumber(String.format("%s F Amps", name), this.followerMotor::getAppliedOutput)
-        .withSize(1, 1);
+    //    shuffleboardTab
+    //        .addNumber(String.format("%s F Amps", name), this.followerMotor::getAppliedOutput)
+    //        .withSize(1, 1);
   }
 
   /**
@@ -97,8 +111,8 @@ public class ArmSubsystem extends SubsystemBase {
   }
 
   public void set(ArmPositions position, int slot) {
-    if ( slot == 0 ) {
-    motorPid.setReference(position.getPosition(), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+    if (slot == 0) {
+      motorPid.setReference(position.getPosition(), ControlType.kPosition, ClosedLoopSlot.kSlot0);
     } else {
       motorPid.setReference(position.getPosition(), ControlType.kPosition, ClosedLoopSlot.kSlot1);
     }

@@ -1,20 +1,27 @@
 package frc.robot.subsystems;
 
+import bearlib.motor.deserializer.MotorParser;
+import bearlib.motor.deserializer.models.encoder.ConversionFactor;
+import bearlib.motor.deserializer.models.encoder.Encoder;
+import bearlib.motor.deserializer.models.pidf.Pidf;
 import com.revrobotics.AbsoluteEncoder;
+import com.revrobotics.RelativeEncoder;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.RelativeEncoder;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
-import frc.robot.util.MotorConfig;
-import frc.robot.util.MotorConfig.MotorBuilder;
+import frc.robot.constants.DriveConstants;
+import frc.robot.constants.SwerveModuleConstants;
+import java.io.File;
+import java.io.IOException;
+import java.lang.reflect.Field;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.function.DoubleSupplier;
@@ -25,8 +32,8 @@ public class SwerveModule {
 
   private String moduleName;
 
-  private SparkMax driveMotor;
-  private SparkMax pivotMotor;
+  private SparkBase driveMotor;
+  private SparkBase pivotMotor;
 
   private RelativeEncoder driveMotorEncoder;
   private AbsoluteEncoder pivotMotorEncoder;
@@ -47,25 +54,80 @@ public class SwerveModule {
     this.parkedAngle = swerveModule.getParkAngle();
     this.chassisAngularOffset = swerveModule.getChassisAngularOffset();
 
-    this.driveMotor =
-        new SparkMax(
-            swerveModule.getDriveMotor().getMotorPort(), MotorType.kBrushless);
+    //    this.driveMotor =
+    //        new SparkMax(
+    //            swerveModule.getDriveMotor().getMotorPort(), MotorType.kBrushless);
 
-    this.pivotMotor =
-        new SparkMax(swerveModule.getPivotMotor().getMotorPort(), MotorType.kBrushless);
-       
+    //    this.pivotMotor =
+    //        new SparkMax(swerveModule.getPivotMotor().getMotorPort(), MotorType.kBrushless);
+
+    File directory = new File(Filesystem.getDeployDirectory(), "motors/drive");
+
+    try {
+      MotorParser parser =
+          new MotorParser(directory).withMotor(swerveModule.moduleName + "drive.json");
+      try {
+        Field encoderField = MotorParser.class.getDeclaredField("encoder");
+        encoderField.setAccessible(true);
+        Encoder encoderConfig = (Encoder) encoderField.get(parser);
+        ConversionFactor conversionFactor = new ConversionFactor();
+        conversionFactor.setPosition(SwerveModuleConstants.DRIVE_POSITION_CONVERSION_FACTOR);
+        conversionFactor.setVelocity(SwerveModuleConstants.DRIVE_VELOCITY_CONVERSION_FACTOR);
+        encoderConfig.setConversionFactor(conversionFactor);
+        encoderConfig.setInverted(false);
+      } catch (Exception ex) {
+        throw new RuntimeException("Failed to configure enocder on drive motor!", ex);
+      }
+
+      try {
+        Field pidfField = MotorParser.class.getDeclaredField("pidfs");
+        pidfField.setAccessible(true);
+        Pidf[] pidfs = (Pidf[]) pidfField.get(parser);
+        pidfs[0].setP(0.04);
+        pidfs[0].setFf(1 / DriveConstants.DRIVE_WHEEL_FREE_SPEED_RPS);
+      } catch (Exception ex) {
+        throw new RuntimeException("Failed to configure pidf on drive motor!", ex);
+      }
+
+      driveMotor = parser.configureAsync();
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to configure drive motor!", exception);
+    }
+
+    try {
+      MotorParser parser =
+          new MotorParser(directory)
+              .withMotor(swerveModule.moduleName + "pivot.json")
+              .withPidf(swerveModule.moduleName + "pivot_pidf.json");
+      try {
+        Field encoderField = MotorParser.class.getDeclaredField("encoder");
+        encoderField.setAccessible(true);
+        Encoder encoderConfig = (Encoder) encoderField.get(parser);
+        ConversionFactor conversionFactor = new ConversionFactor();
+        conversionFactor.setPosition(SwerveModuleConstants.PIVOT_POSITION_CONVERSION_FACTOR);
+        conversionFactor.setVelocity(SwerveModuleConstants.PIVOT_VELOCITY_CONVERSION_FACTOR);
+        encoderConfig.setConversionFactor(conversionFactor);
+        encoderConfig.setInverted(true);
+      } catch (Exception ex) {
+        throw new RuntimeException("Failed to configure enocder on pivot motor!", ex);
+      }
+      pivotMotor = parser.configureAsync();
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to configure pivot motor!", exception);
+    }
+
     this.driveMotorEncoder = driveMotor.getEncoder();
     this.pivotMotorEncoder = pivotMotor.getAbsoluteEncoder();
 
-    MotorConfig.fromMotorConstants(driveMotor, driveMotorEncoder, swerveModule.getDriveMotor())
-        .configureMotor()
-        .configurePID(swerveModule.getDriveMotor().getMotorPID())
-        .burnFlash();
+    // MotorConfig.fromMotorConstants(driveMotor, driveMotorEncoder, swerveModule.getDriveMotor())
+    //    .configureMotor()
+    //    .configurePID(swerveModule.getDriveMotor().getMotorPID())
+    //    .burnFlash();
 
-    MotorConfig.fromMotorConstants(pivotMotor, pivotMotorEncoder, swerveModule.getPivotMotor())
-        .configureMotor()
-        .configurePID(swerveModule.getPivotMotor().getMotorPID())
-        .burnFlash();
+    // MotorConfig.fromMotorConstants(pivotMotor, pivotMotorEncoder, swerveModule.getPivotMotor())
+    //    .configureMotor()
+    //    .configurePID(swerveModule.getPivotMotor().getMotorPID())
+    //    .burnFlash();
 
     this.driveMotorPIDController = driveMotor.getClosedLoopController();
     this.pivotMotorPIDController = pivotMotor.getClosedLoopController();
@@ -144,7 +206,7 @@ public class SwerveModule {
   /** Updates data logs */
   public void updateDataLogs() {
     for (Entry<String, DoubleLogEntry> entry : dataLogs.entrySet()) {
-      final SparkMax motor = entry.getKey().startsWith("PIVOT") ? pivotMotor : driveMotor;
+      final SparkBase motor = entry.getKey().startsWith("PIVOT") ? pivotMotor : driveMotor;
       final String property =
           entry
               .getKey()
@@ -161,7 +223,7 @@ public class SwerveModule {
    * @param property The property
    * @return The getter, wrapped as a DoubleSupplier
    */
-  public DoubleSupplier getPropertySupplier(SparkMax motor, String property) {
+  public DoubleSupplier getPropertySupplier(SparkBase motor, String property) {
     switch (property) {
       case "CURRENT":
         return motor::getOutputCurrent;
@@ -261,8 +323,6 @@ public class SwerveModule {
     private String moduleName;
     private Rotation2d parkAngle;
     private Rotation2d chassisAngularOffset;
-    private MotorBuilder driveMotor;
-    private MotorBuilder pivotMotor;
 
     public String getModuleName() {
       return moduleName;
@@ -282,23 +342,23 @@ public class SwerveModule {
       return this;
     }
 
-    public MotorBuilder getDriveMotor() {
-      return driveMotor;
-    }
+    //  public MotorBuilder getDriveMotor() {
+    //    return driveMotor;
+    //  }
 
-    public SwerveModuleBuilder setDriveMotor(MotorBuilder driveMotor) {
-      this.driveMotor = driveMotor;
-      return this;
-    }
+    //  public SwerveModuleBuilder setDriveMotor(MotorBuilder driveMotor) {
+    //     this.driveMotor = driveMotor;
+    //     return this;
+    //   }
 
-    public MotorBuilder getPivotMotor() {
-      return pivotMotor;
-    }
+    //   public MotorBuilder getPivotMotor() {
+    //     return pivotMotor;
+    //   }
 
-    public SwerveModuleBuilder setPivotMotor(MotorBuilder pivotMotor) {
-      this.pivotMotor = pivotMotor;
-      return this;
-    }
+    //  public SwerveModuleBuilder setPivotMotor(MotorBuilder pivotMotor) {
+    //    this.pivotMotor = pivotMotor;
+    //    return this;
+    //  }
 
     public Rotation2d getChassisAngularOffset() {
       return chassisAngularOffset;

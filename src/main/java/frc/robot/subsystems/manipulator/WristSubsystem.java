@@ -1,23 +1,22 @@
 package frc.robot.subsystems.manipulator;
 
+import bearlib.motor.deserializer.MotorParser;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
+import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkClosedLoopController;
-import com.revrobotics.spark.SparkMax;
-import com.revrobotics.spark.config.ClosedLoopConfig;
-
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
 import edu.wpi.first.wpilibj.DigitalInput;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.manipulator.WristConstants;
 import frc.robot.constants.manipulator.WristConstants.WristPositions;
-import frc.robot.util.MotorConfig;
-import frc.robot.util.MotorConfig.MotorBuilder;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.function.DoubleSupplier;
@@ -26,26 +25,31 @@ public class WristSubsystem extends SubsystemBase {
   private String name;
   private RelativeEncoder motorEncoder;
   private SparkClosedLoopController motorPid;
-  private SparkMax motor;
+  private SparkBase motor;
 
   private double targetPosition = 0;
   private final DigitalInput limitSwitch = new DigitalInput(WristConstants.WRIST_LIMIT_SWITCH_PORT);
 
   private HashMap<String, DoubleLogEntry> dataLogs = new HashMap<String, DoubleLogEntry>();
 
-  public WristSubsystem(MotorBuilder motorConstants) {
-    this.name = motorConstants.getName(); // TODO: Use name AND moduleName
+  public WristSubsystem() {
+    this.name = "Wrist";
 
-    this.motor =
-        new SparkMax(motorConstants.getMotorPort(), MotorType.kBrushless);
+    File directory = new File(Filesystem.getDeployDirectory(), "motors/wrist");
+
+    try {
+      motor =
+          new MotorParser(directory)
+              .withMotor("motor.json")
+              .withEncoder("encoder.json")
+              .withPidf("pidf.json")
+              .configureAsync();
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to configure wrist motor!", exception);
+    }
 
     this.motorEncoder = motor.getEncoder();
     this.motorPid = motor.getClosedLoopController();
-
-    MotorConfig.fromMotorConstants(motor, motorEncoder, motorConstants)
-        .configureMotor()
-        .configurePID(motorConstants.getMotorPID())
-        .burnFlash();
 
     setupShuffleboardTab(RobotConstants.MANIPULATOR_SYSTEM_TAB);
     setupDataLogging(DataLogManager.getLog());

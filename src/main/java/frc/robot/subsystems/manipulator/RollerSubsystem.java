@@ -1,19 +1,19 @@
 package frc.robot.subsystems.manipulator;
 
+import bearlib.motor.deserializer.MotorParser;
 import com.revrobotics.RelativeEncoder;
-import com.revrobotics.spark.SparkLowLevel.MotorType;
-import com.revrobotics.spark.SparkMax;
-
+import com.revrobotics.spark.SparkBase;
 import edu.wpi.first.math.filter.MedianFilter;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
+import edu.wpi.first.wpilibj.Filesystem;
 import edu.wpi.first.wpilibj.shuffleboard.ShuffleboardTab;
 import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.constants.RobotConstants;
 import frc.robot.constants.manipulator.RollerConstants.RollerSpeed;
-import frc.robot.util.MotorConfig;
-import frc.robot.util.MotorConfig.MotorBuilder;
+import java.io.File;
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map.Entry;
 import java.util.function.DoubleSupplier;
@@ -22,20 +22,26 @@ public class RollerSubsystem extends SubsystemBase {
   private MedianFilter medianFilter = new MedianFilter(10);
   private String name;
   private RelativeEncoder motorEncoder;
-  private SparkMax motor;
+  private SparkBase motor;
 
   private HashMap<String, DoubleLogEntry> dataLogs = new HashMap<String, DoubleLogEntry>();
 
-  public RollerSubsystem(MotorBuilder motorConstants) {
-    this.name = motorConstants.getName();
+  public RollerSubsystem() {
+    this.name = "Roller";
 
-    this.motor =
-        new SparkMax(motorConstants.getMotorPort(), MotorType.kBrushless);
+    File directory = new File(Filesystem.getDeployDirectory(), "motors/roller");
+
+    try {
+      motor =
+          new MotorParser(directory)
+              .withMotor("motor.json")
+              .withEncoder("encoder.json")
+              .configureAsync();
+    } catch (IOException exception) {
+      throw new RuntimeException("Failed to configure roller motor!", exception);
+    }
 
     this.motorEncoder = motor.getEncoder();
-    MotorConfig.fromMotorConstants(motor, motorEncoder, motorConstants)
-        .configureMotor()
-        .burnFlash();
 
     setupShuffleboardTab(RobotConstants.MANIPULATOR_SYSTEM_TAB);
     setupDataLogging(DataLogManager.getLog());

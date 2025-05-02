@@ -4,8 +4,8 @@
 
 package frc.robot.util;
 
-import com.revrobotics.spark.SparkBase;
 import com.revrobotics.REVLibError;
+import com.revrobotics.spark.SparkBase;
 import edu.wpi.first.wpilibj.DriverStation;
 
 /** Convenience methods for using the RevRobotics api. */
@@ -30,10 +30,13 @@ public class RevUtil {
    * @param desc Description of the motor ("Climber1", "Left Drive", etc)
    */
   public static void setPeriodicFramePeriodLow(SparkBase motor, String desc) {
-//    checkRevError(motor.setPeriodicFramePeriod( .PeriodicFrame.kStatus0, 20));
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20));
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 100));
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus3, 100));
+    //    checkRevError(motor.setPeriodicFramePeriod( .PeriodicFrame.kStatus0, 20));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1,
+    // 20));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2,
+    // 100));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus3,
+    // 100));
   }
 
   /**
@@ -43,9 +46,13 @@ public class RevUtil {
    * @param desc Description of the motor ("Climber1", "Left Drive", etc)
    */
   public static void setPeriodicFramePeriodHigh(SparkBase motor, String desc) {
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0, 10));
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1, 20));
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2, 20));
-//    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus3, 50));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus0,
+    // 10));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus1,
+    // 20));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus2,
+    // 20));
+    //    checkRevError(motor.setPeriodicFramePeriod(CANSparkMaxLowLevel.PeriodicFrame.kStatus3,
+    // 50));
   }
 }

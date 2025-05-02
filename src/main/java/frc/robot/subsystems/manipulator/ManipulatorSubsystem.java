@@ -9,15 +9,10 @@ import edu.wpi.first.wpilibj2.command.WaitCommand;
 import edu.wpi.first.wpilibj2.command.WaitUntilCommand;
 import frc.robot.commands.CubeHuntCommand;
 import frc.robot.constants.AutoConstants.ScorePosition;
-import frc.robot.constants.manipulator.ArmConstants;
 import frc.robot.constants.manipulator.ArmConstants.ArmPositions;
-import frc.robot.constants.manipulator.RollerConstants;
 import frc.robot.constants.manipulator.RollerConstants.RollerSpeed;
-import frc.robot.constants.manipulator.WristConstants;
 import frc.robot.constants.manipulator.WristConstants.WristPositions;
 import frc.robot.subsystems.DriveSubsystem;
-import frc.robot.util.MotorConfig.MotorBuilder;
-import frc.robot.util.MotorConfig.MotorPIDBuilder;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,57 +28,15 @@ public class ManipulatorSubsystem extends SubsystemBase {
   }
 
   private ArmSubsystem getArmSubsystem() {
-    MotorPIDBuilder armMotorPidRaise =
-        new MotorPIDBuilder().setP(ArmConstants.Motor.MotorPidRaise.P);
-    MotorPIDBuilder armMotorPidLower =
-        new MotorPIDBuilder().setP(ArmConstants.Motor.MotorPidLower.P);
-
-    MotorBuilder armMotorConfig =
-        new MotorBuilder()
-            .setName(ArmConstants.Motor.NAME)
-            .setMotorPort(ArmConstants.Motor.MOTOR_PORT)
-            .setCurrentLimit(ArmConstants.Motor.CURRENT_LIMT)
-            .setMotorInverted(ArmConstants.Motor.INVERTED)
-            .setEncoderInverted(ArmConstants.Motor.ENCODER_INVERTED)
-            .setMotorPid(armMotorPidRaise, 0)
-            .setMotorPid(armMotorPidLower, 1);
-
-    MotorBuilder armFollowerMotorConfig =
-        new MotorBuilder()
-            .setName(ArmConstants.FollowerMotor.NAME)
-            .setMotorPort(ArmConstants.FollowerMotor.MOTOR_PORT)
-            .setCurrentLimit(ArmConstants.FollowerMotor.CURRENT_LIMT)
-            .setMotorInverted(ArmConstants.FollowerMotor.INVERTED)
-            .setEncoderInverted(ArmConstants.FollowerMotor.ENCODER_INVERTED);
-
-    return new ArmSubsystem(armMotorConfig, armFollowerMotorConfig);
+    return new ArmSubsystem();
   }
 
   private WristSubsystem getWristSubsystem() {
-    MotorPIDBuilder wristMotorPid = new MotorPIDBuilder().setP(WristConstants.Motor.MotorPid.P);
-
-    MotorBuilder wristMotorConfig =
-        new MotorBuilder()
-            .setName(WristConstants.Motor.NAME)
-            .setMotorPort(WristConstants.Motor.MOTOR_PORT)
-            .setCurrentLimit(WristConstants.Motor.CURRENT_LIMT)
-            .setMotorInverted(WristConstants.Motor.INVERTED)
-            .setEncoderInverted(WristConstants.Motor.ENCODER_INVERTED)
-            .setMotorPID(wristMotorPid);
-
-    return new WristSubsystem(wristMotorConfig);
+    return new WristSubsystem();
   }
 
   private RollerSubsystem getRollerSubsystem() {
-    MotorBuilder rollerMotorConfig =
-        new MotorBuilder()
-            .setName(RollerConstants.Motor.NAME)
-            .setMotorPort(RollerConstants.Motor.MOTOR_PORT)
-            .setCurrentLimit(RollerConstants.Motor.CURRENT_LIMT)
-            .setMotorInverted(RollerConstants.Motor.INVERTED)
-            .setEncoderInverted(RollerConstants.Motor.ENCODER_INVERTED);
-
-    return new RollerSubsystem(rollerMotorConfig);
+    return new RollerSubsystem();
   }
 
   public Command getRollerRunCommand(RollerSpeed speed) {
