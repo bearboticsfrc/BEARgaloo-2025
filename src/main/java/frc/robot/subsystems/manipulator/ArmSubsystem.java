@@ -50,25 +50,8 @@ public class ArmSubsystem extends SubsystemBase {
       throw new RuntimeException("Failed to configure arm motor!", exception);
     }
 
-    //   this.motor = new SparkMax(motorConstants.getMotorPort(), MotorType.kBrushless);
-    //  this.followerMotor = new SparkMax(followerMotorConstants.getMotorPort(),
-    // MotorType.kBrushless);
-
     this.motorEncoder = motor.getEncoder();
     this.motorPid = motor.getClosedLoopController();
-    //   SparkMaxConfig config = new SparkMaxConfig();
-    //   config.follow(motorConstants.getMotorPort()).inverted(true);
-
-    //    MotorConfig.fromMotorConstants(motor, motorEncoder, motorConstants)
-    //        .configureMotor()
-    //        .configurePID(motorConstants.getMotorPid(0), 0)
-    //        .configurePID(motorConstants.getMotorPid(1), 1)
-    //        .burnFlash();
-
-    //   MotorConfig.fromMotorConstants(
-    //           followerMotor, followerMotor.getEncoder(), followerMotorConstants)
-    //       .configureMotor()
-    //       .burnFlash();
 
     setupShuffleboardTab(RobotConstants.MANIPULATOR_SYSTEM_TAB);
     setupDataLogging(DataLogManager.getLog());

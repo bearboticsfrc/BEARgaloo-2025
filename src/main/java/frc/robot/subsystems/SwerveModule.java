@@ -54,13 +54,6 @@ public class SwerveModule {
     this.parkedAngle = swerveModule.getParkAngle();
     this.chassisAngularOffset = swerveModule.getChassisAngularOffset();
 
-    //    this.driveMotor =
-    //        new SparkMax(
-    //            swerveModule.getDriveMotor().getMotorPort(), MotorType.kBrushless);
-
-    //    this.pivotMotor =
-    //        new SparkMax(swerveModule.getPivotMotor().getMotorPort(), MotorType.kBrushless);
-
     File directory = new File(Filesystem.getDeployDirectory(), "motors/drive");
 
     try {
@@ -118,16 +111,6 @@ public class SwerveModule {
 
     this.driveMotorEncoder = driveMotor.getEncoder();
     this.pivotMotorEncoder = pivotMotor.getAbsoluteEncoder();
-
-    // MotorConfig.fromMotorConstants(driveMotor, driveMotorEncoder, swerveModule.getDriveMotor())
-    //    .configureMotor()
-    //    .configurePID(swerveModule.getDriveMotor().getMotorPID())
-    //    .burnFlash();
-
-    // MotorConfig.fromMotorConstants(pivotMotor, pivotMotorEncoder, swerveModule.getPivotMotor())
-    //    .configureMotor()
-    //    .configurePID(swerveModule.getPivotMotor().getMotorPID())
-    //    .burnFlash();
 
     this.driveMotorPIDController = driveMotor.getClosedLoopController();
     this.pivotMotorPIDController = pivotMotor.getClosedLoopController();
@@ -341,24 +324,6 @@ public class SwerveModule {
       this.parkAngle = parkAngle;
       return this;
     }
-
-    //  public MotorBuilder getDriveMotor() {
-    //    return driveMotor;
-    //  }
-
-    //  public SwerveModuleBuilder setDriveMotor(MotorBuilder driveMotor) {
-    //     this.driveMotor = driveMotor;
-    //     return this;
-    //   }
-
-    //   public MotorBuilder getPivotMotor() {
-    //     return pivotMotor;
-    //   }
-
-    //  public SwerveModuleBuilder setPivotMotor(MotorBuilder pivotMotor) {
-    //    this.pivotMotor = pivotMotor;
-    //    return this;
-    //  }
 
     public Rotation2d getChassisAngularOffset() {
       return chassisAngularOffset;
