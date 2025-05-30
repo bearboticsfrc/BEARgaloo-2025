@@ -10,13 +10,14 @@ public class SwerveModuleConstants {
       ((RobotConstants.WHEEL_DIAMETER * Math.PI) / DriveConstants.DRIVE_GEAR_REDUCTION)
           / 60.0; // meters per second
 
+  public static final double AZMITH_CONVERSION = 9424.0 / 203.0;
   public static final double PIVOT_POSITION_CONVERSION_FACTOR = 2 * Math.PI;
   public static final double PIVOT_VELOCITY_CONVERSION_FACTOR = (2 * Math.PI) / 60;
 
   public static class FrontLeftConstants {
-    public static final String MODULE_NAME = "FL";
+    public static final String MODULE_NAME = "fl";
     public static final Rotation2d PARK_ANGLE = Rotation2d.fromDegrees(135);
-    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.fromRadians(-Math.PI / 2);
+    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.kZero; //  Rotation2d.fromRadians(-Math.PI / 2);
 
     public static class DriveMotor {
       public static final String NAME = MODULE_NAME + "Drive";
@@ -52,9 +53,9 @@ public class SwerveModuleConstants {
   }
 
   public static class FrontRightConstants {
-    public static final String MODULE_NAME = "FR";
+    public static final String MODULE_NAME = "fr";
     public static final Rotation2d PARK_ANGLE = Rotation2d.fromDegrees(45);
-    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.fromRadians(0);
+    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.kZero;
 
     public static class DriveMotor {
       public static final String NAME = MODULE_NAME + "Drive";
@@ -90,9 +91,9 @@ public class SwerveModuleConstants {
   }
 
   public static class BackLeftConstants {
-    public static final String MODULE_NAME = "BL";
+    public static final String MODULE_NAME = "bl";
     public static final Rotation2d PARK_ANGLE = Rotation2d.fromDegrees(225);
-    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.fromRadians(Math.PI);
+    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.kZero; //  Rotation2d.k180deg;
 
     public static class DriveMotor {
       public static final String NAME = MODULE_NAME + "Drive";
@@ -128,9 +129,9 @@ public class SwerveModuleConstants {
   }
 
   public static class BackRightConstants {
-    public static final String MODULE_NAME = "BR";
+    public static final String MODULE_NAME = "br";
     public static final Rotation2d PARK_ANGLE = Rotation2d.fromDegrees(135);
-    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.fromRadians(Math.PI / 2);
+    public static final Rotation2d CHASSIS_ANGULAR_OFFSET = Rotation2d.kZero; // Rotation2d.fromRadians(Math.PI / 2);
 
     public static class DriveMotor {
       public static final String NAME = MODULE_NAME + "Drive";

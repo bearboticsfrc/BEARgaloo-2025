@@ -1,6 +1,6 @@
 {
     "type": "max",
     "id": 15,
-    "inverted": false,
+    "inverted": true,
     "current_limit": 20
 }

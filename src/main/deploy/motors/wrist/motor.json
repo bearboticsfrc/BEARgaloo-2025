@@ -2,6 +2,6 @@
     "type": "max",
     "id": 13,
     "inverted": true,
-    "current_limit": 80,
+    "current_limit": 40,
     "idle_mode": "brake"
 }

@@ -4,9 +4,7 @@
 
 package frc.robot.subsystems;
 
-import static edu.wpi.first.units.Units.Degrees;
-
-import com.ctre.phoenix6.hardware.Pigeon2;
+import com.ctre.phoenix.sensors.WPI_PigeonIMU;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.geometry.Pose2d;
 import edu.wpi.first.math.geometry.Rotation2d;
@@ -38,8 +36,8 @@ import java.util.Map;
 public class DriveSubsystem extends SubsystemBase {
   // Linked to maintain order.
   private final LinkedHashMap<SwerveCorner, SwerveModule> swerveModules = new LinkedHashMap<>();
-  // private final WPI_PigeonIMU pigeonImu = new WPI_PigeonIMU(RobotConstants.PIGEON_CAN_ID);
-  private final Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_CAN_ID);
+  private final WPI_PigeonIMU pigeonImu = new WPI_PigeonIMU(RobotConstants.PIGEON_CAN_ID);
+  // private final Pigeon2 pigeon = new Pigeon2(RobotConstants.PIGEON_CAN_ID);
 
   private final SwerveDriveOdometry odometry;
   private GenericEntry competitionTabMaxSpeedEntry;
@@ -65,7 +63,7 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public void zeroHeading() {
-    pigeon.reset();
+    pigeonImu.reset();
   }
 
   private void setupShuffleboardTab() {
@@ -88,11 +86,8 @@ public class DriveSubsystem extends SubsystemBase {
   public void periodic() {
     odometry.update(getHeading(), getModulePositions());
 
-    maxSpeed = competitionTabMaxSpeedEntry.getDouble(DriveConstants.MAX_VELOCITY);
-
-    for (SwerveModule module : swerveModules.values()) {
-      module.updateDataLogs();
-    }
+    // maxSpeed = competitionTabMaxSpeedEntry.getDouble(DriveConstants.MAX_VELOCITY);
+    maxSpeed = DriveConstants.MAX_VELOCITY;
   }
 
   private SwerveModuleBuilder getSwerveConfigForCorner(SwerveCorner corner) {
@@ -154,11 +149,13 @@ public class DriveSubsystem extends SubsystemBase {
   }
 
   public double getPitch() {
-    return pigeon.getPitch().getValue().in(Degrees);
+    return pigeonImu.getPitch();
+    // return pigeonImu.getPitch().getValue().in(Degrees);
   }
 
   public double getRoll() {
-    return pigeon.getRoll().getValue().in(Degrees);
+    return pigeonImu.getPitch();
+    // return pigeonImu.getRoll().getValue().in(Degrees);
   }
 
   /**
@@ -169,7 +166,13 @@ public class DriveSubsystem extends SubsystemBase {
    * @return An array containing the swerve modules, ordered.
    */
   private SwerveModule[] getSwerveModules() {
-    return (SwerveModule[]) swerveModules.values().toArray(new SwerveModule[4]);
+   // return (SwerveModule[]) swerveModules.values().toArray(new SwerveModule[4]);
+   return new SwerveModule[] {
+    swerveModules.get(SwerveCorner.FRONT_LEFT),
+    swerveModules.get(SwerveCorner.FRONT_RIGHT),
+    swerveModules.get(SwerveCorner.BACK_LEFT),
+    swerveModules.get(SwerveCorner.BACK_RIGHT)
+   };
   }
 
   /**
@@ -245,12 +248,6 @@ public class DriveSubsystem extends SubsystemBase {
         DriveConstants.TURNING_ACCELERATION_LIMITER.calculate(rot)
             * DriveConstants.MAX_ANGULAR_ACCELERATION_PER_SECOND;
 
-    if (maxSpeed == SpeedMode.TURTLE.getMaxSpeed()) {
-      rot /= 18;
-    } else if (maxSpeed == SpeedMode.TURBO.getMaxSpeed()) {
-      rot /= 4;
-    } // TODO: refactor
-
     SwerveModuleState[] swerveModuleStates =
         RobotConstants.DRIVE_KINEMATICS.toSwerveModuleStates(
             fieldRelative
@@ -274,9 +271,13 @@ public class DriveSubsystem extends SubsystemBase {
     SwerveDriveKinematics.desaturateWheelSpeeds(swerveModuleStates, maxSpeed);
     Iterator<SwerveModuleState> stateIterator = Arrays.asList(swerveModuleStates).iterator();
 
-    for (SwerveModule module : swerveModules.values()) {
-      module.set(stateIterator.next());
-    }
+    // for (SwerveModule module : swerveModules.values()) {
+    //   module.set(stateIterator.next());
+    // }
+    swerveModules.get(SwerveCorner.FRONT_LEFT).set(swerveModuleStates[0]);
+    swerveModules.get(SwerveCorner.FRONT_RIGHT).set(swerveModuleStates[1]);
+    swerveModules.get(SwerveCorner.BACK_LEFT).set(swerveModuleStates[2]);
+    swerveModules.get(SwerveCorner.BACK_RIGHT).set(swerveModuleStates[3]);
   }
 
   /**
@@ -287,9 +288,13 @@ public class DriveSubsystem extends SubsystemBase {
   public SwerveModuleState[] getModuleStates() {
     SwerveModuleState[] states = new SwerveModuleState[4];
     int index = 0;
-    for (SwerveModule module : swerveModules.values()) {
-      states[index++] = module.getState();
-    }
+    // for (SwerveModule module : swerveModules.values()) {
+    //   states[index++] = module.getState();
+    // }
+    states[0] = swerveModules.get(SwerveCorner.FRONT_LEFT).getState();
+    states[1] = swerveModules.get(SwerveCorner.FRONT_RIGHT).getState();
+    states[2] = swerveModules.get(SwerveCorner.BACK_LEFT).getState();
+    states[3] = swerveModules.get(SwerveCorner.BACK_RIGHT).getState();
     return states;
   }
 
@@ -300,7 +305,7 @@ public class DriveSubsystem extends SubsystemBase {
    */
   public Rotation2d getHeading() {
     return Rotation2d.fromDegrees(
-        MathUtil.inputModulus(pigeon.getRotation2d().getDegrees(), 0, 360));
+        MathUtil.inputModulus(pigeonImu.getRotation2d().getDegrees(), 0, 360));
   }
 
   /**

@@ -48,7 +48,7 @@ public class RobotContainer {
   /** The container for the robot. Contains subsystems, OI devices, and commands. */
   public RobotContainer() {
     driveSubsystem.setDefaultCommand(getDefaultCommand());
-    setManipulatorDefaultCommand();
+    // setManipulatorDefaultCommand();
     configureControllerMappings();
     buildAutoList();
     setupShuffleboardTab();
@@ -59,8 +59,8 @@ public class RobotContainer {
         () ->
             driveSubsystem.drive(
                 -MathUtil.applyDeadband(driverController.getLeftY(), 0.1),
-                -MathUtil.applyDeadband(driverController.getLeftX(), 0.1),
-                -MathUtil.applyDeadband(driverController.getRightX(), 0.1)),
+                MathUtil.applyDeadband(driverController.getLeftX(), 0.1),
+                -MathUtil.applyDeadband(driverController.getRightX(), 0.1), false),
         driveSubsystem);
   }
 
@@ -68,30 +68,20 @@ public class RobotContainer {
     isTeleop = mode;
   }
 
-  public void teleopInit() {
-    driveSubsystem.setParkMode(false);
-    driveSubsystem.setSpeedMode(SpeedMode.NORMAL);
-  }
-
-  private void setManipulatorDefaultCommand() {
-    manipulatorSubsystem.setDefaultCommand(
-        new RunCommand(
-            () -> {
-              manipulatorSubsystem.adjustWristHeight(
-                  MathUtil.applyDeadband(operatorController.getRightY(), 0.2));
-            },
-            manipulatorSubsystem));
-  }
-
   public void configureControllerMappings() {
     configureDriverController();
-    configureOperatorController();
   }
 
   private void configureDriverController() {
     driverController.a().onTrue(new InstantCommand(driveSubsystem::zeroHeading));
 
-    driverController.b().onTrue(manipulatorSubsystem.getWristRunCommand(WristPositions.BOTTOM));
+    //driverController.b().onTrue(manipulatorSubsystem.getWristRunCommand(WristPositions.BOTTOM));
+
+    driverController.b().whileTrue(
+     new RunCommand(
+      () ->
+          driveSubsystem.drive(0,0,.1,false),
+      driveSubsystem)).onFalse(driveSubsystem.getDriveStopCommand());
 
     driverController
         .x()

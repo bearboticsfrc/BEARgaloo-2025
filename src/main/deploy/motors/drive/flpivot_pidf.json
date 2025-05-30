@@ -1,7 +1,8 @@
 {
     "p": 1,
+    "feedback_sensor": "AbsoluteEncoder",
     "position_wrapping": {
-        "min_output": 0,
-        "max_output": 6.2831853072
-    }
+        "min_output": -3.1415926536,
+        "max_output": 3.1415926536
+   }
 }

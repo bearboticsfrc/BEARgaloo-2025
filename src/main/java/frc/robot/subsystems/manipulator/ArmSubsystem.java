@@ -37,10 +37,10 @@ public class ArmSubsystem extends SubsystemBase {
     try {
       motor =
           new MotorParser(directory)
-              .withMotor("motor.json")
-              .withEncoder("encoder.json")
-              .withPidf("pid0.json", 0)
-              .withPidf("pid1.json", 1)
+              .withMotor("leader.json")
+              // .withEncoder("encoder.json")
+              .withPidf("pidf0.json", 0)
+              .withPidf("pidf1.json", 1)
               .configureAsync();
 
       // Don't need to hold a reference, just configure...

@@ -4,7 +4,6 @@ import bearlib.motor.deserializer.MotorParser;
 import com.revrobotics.RelativeEncoder;
 import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
-import com.revrobotics.spark.SparkClosedLoopController;
 import edu.wpi.first.util.datalog.DataLog;
 import edu.wpi.first.util.datalog.DoubleLogEntry;
 import edu.wpi.first.wpilibj.DataLogManager;
@@ -24,7 +23,7 @@ import java.util.function.DoubleSupplier;
 public class WristSubsystem extends SubsystemBase {
   private String name;
   private RelativeEncoder motorEncoder;
-  private SparkClosedLoopController motorPid;
+  // private SparkClosedLoopController motorPid;
   private SparkBase motor;
 
   private double targetPosition = 0;
@@ -41,7 +40,7 @@ public class WristSubsystem extends SubsystemBase {
       motor =
           new MotorParser(directory)
               .withMotor("motor.json")
-              .withEncoder("encoder.json")
+              // .withEncoder("encoder.json")
               .withPidf("pidf.json")
               .configureAsync();
     } catch (IOException exception) {
@@ -49,7 +48,7 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     this.motorEncoder = motor.getEncoder();
-    this.motorPid = motor.getClosedLoopController();
+    // this.motorPid = motor.getClosedLoopController();
 
     setupShuffleboardTab(RobotConstants.MANIPULATOR_SYSTEM_TAB);
     setupDataLogging(DataLogManager.getLog());
@@ -90,8 +89,9 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public void set(WristPositions position) {
+    System.out.println("Setting wrist to " + position.toString() + " / " + position.getPosition());
     targetPosition = position.getPosition();
-    motorPid.setReference(position.getPosition(), ControlType.kPosition);
+    motor.getClosedLoopController().setReference(position.getPosition(), ControlType.kPosition);
   }
 
   public void setReference(double position) {
@@ -101,7 +101,7 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     targetPosition = position;
-    motorPid.setReference(position, ControlType.kPosition);
+    motor.getClosedLoopController().setReference(position, ControlType.kPosition);
   }
 
   /**
