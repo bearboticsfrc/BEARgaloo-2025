@@ -23,7 +23,6 @@ import java.util.function.DoubleSupplier;
 public class WristSubsystem extends SubsystemBase {
   private String name;
   private RelativeEncoder motorEncoder;
-  // private SparkClosedLoopController motorPid;
   private SparkBase motor;
 
   private double targetPosition = 0;
@@ -40,7 +39,6 @@ public class WristSubsystem extends SubsystemBase {
       motor =
           new MotorParser(directory)
               .withMotor("motor.json")
-              // .withEncoder("encoder.json")
               .withPidf("pidf.json")
               .configureAsync();
     } catch (IOException exception) {
@@ -48,7 +46,6 @@ public class WristSubsystem extends SubsystemBase {
     }
 
     this.motorEncoder = motor.getEncoder();
-    // this.motorPid = motor.getClosedLoopController();
 
     setupShuffleboardTab(RobotConstants.MANIPULATOR_SYSTEM_TAB);
     setupDataLogging(DataLogManager.getLog());
@@ -89,7 +86,6 @@ public class WristSubsystem extends SubsystemBase {
   }
 
   public void set(WristPositions position) {
-    System.out.println("Setting wrist to " + position.toString() + " / " + position.getPosition());
     targetPosition = position.getPosition();
     motor.getClosedLoopController().setReference(position.getPosition(), ControlType.kPosition);
   }

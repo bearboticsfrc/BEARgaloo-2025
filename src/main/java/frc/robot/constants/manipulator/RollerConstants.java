@@ -10,7 +10,7 @@ public class RollerConstants {
   }
 
   public enum RollerSpeed {
-    INTAKE(-0.5),
+    INTAKE(-1),
     MEDIUM(0.5),
     OFF(0),
     RELEASE(0.7);

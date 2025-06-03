@@ -68,9 +68,9 @@ public class ManipulatorSubsystem extends SubsystemBase {
     return new ParallelCommandGroup(
         getWristRunCommand(WristPositions.HOME),
         getArmRunCommand(ArmPositions.HOME),
-        getRollerRunCommand(RollerSpeed.OFF),
-        new WaitUntilCommand(armSubsystem::isHome),
-        new InstantCommand(() -> armSubsystem.set(ArmPositions.HOME, 0)));
+        getRollerRunCommand(RollerSpeed.OFF));
+        // new WaitUntilCommand(armSubsystem::isHome)
+        // new InstantCommand(() -> armSubsystem.set(ArmPositions.HOME, 1)));
   }
 
   public Command getShelfScoreCommand(ScorePosition position) {

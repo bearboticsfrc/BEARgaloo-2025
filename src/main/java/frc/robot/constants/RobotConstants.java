@@ -15,23 +15,20 @@ public class RobotConstants {
       Shuffleboard.getTab("Manipulator System");
 
   // Order here must line-up with SwerveCorner order!!
-  public static final SwerveDriveKinematics DRIVE_KINEMATICS =
+  public static final SwerveDriveKinematics DRIVE_KINEMATICS_correct =
       new SwerveDriveKinematics(
           new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), // FL
           new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), // FR
           new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), // BL
           new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2)); // BR
 
-  public static final SwerveDriveKinematics DRIVE_KINEMATICS_wrong =
-          new SwerveDriveKinematics(
-            new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2), // FR
-            new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), // FL
-            new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2),// BR
-
-              new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2) // BL
-              ); 
-    
-
+  public static final SwerveDriveKinematics DRIVE_KINEMATICS =
+      new SwerveDriveKinematics(
+          new Translation2d(-WHEEL_BASE / 2, TRACK_WIDTH / 2), // BL
+          new Translation2d(-WHEEL_BASE / 2, -TRACK_WIDTH / 2), // BR
+          new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2), // FL
+          new Translation2d(WHEEL_BASE / 2, -TRACK_WIDTH / 2) // FR
+          );
 
   public static double ROBOT_RADIUS = new Translation2d(WHEEL_BASE / 2, TRACK_WIDTH / 2).getNorm();
 

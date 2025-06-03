@@ -7,6 +7,7 @@ package frc.robot;
 import edu.wpi.first.math.MathUtil;
 import edu.wpi.first.math.Pair;
 import edu.wpi.first.wpilibj.GenericHID.RumbleType;
+import edu.wpi.first.wpilibj.SerialPort.WriteBufferMode;
 import edu.wpi.first.wpilibj.smartdashboard.SendableChooser;
 import edu.wpi.first.wpilibj2.command.Command;
 import edu.wpi.first.wpilibj2.command.InstantCommand;
@@ -60,7 +61,8 @@ public class RobotContainer {
             driveSubsystem.drive(
                 -MathUtil.applyDeadband(driverController.getLeftY(), 0.1),
                 MathUtil.applyDeadband(driverController.getLeftX(), 0.1),
-                -MathUtil.applyDeadband(driverController.getRightX(), 0.1), false),
+                -MathUtil.applyDeadband(driverController.getRightX(), 0.1),
+                false),
         driveSubsystem);
   }
 
@@ -75,18 +77,14 @@ public class RobotContainer {
   private void configureDriverController() {
     driverController.a().onTrue(new InstantCommand(driveSubsystem::zeroHeading));
 
-    //driverController.b().onTrue(manipulatorSubsystem.getWristRunCommand(WristPositions.BOTTOM));
+    driverController.b().onTrue(manipulatorSubsystem.getWristRunCommand(WristPositions.BOTTOM));
 
-    driverController.b().whileTrue(
-     new RunCommand(
-      () ->
-          driveSubsystem.drive(0,0,.1,false),
-      driveSubsystem)).onFalse(driveSubsystem.getDriveStopCommand());
+    // driverController
+    //   .x()
+    //    .whileTrue(manipulatorSubsystem.getCubeHuntCommand(driveSubsystem))
+    //    .onFalse(manipulatorSubsystem.getRollerRunCommand(RollerSpeed.OFF));
 
-    driverController
-        .x()
-        .whileTrue(manipulatorSubsystem.getCubeHuntCommand(driveSubsystem))
-        .onFalse(manipulatorSubsystem.getRollerRunCommand(RollerSpeed.OFF));
+    driverController.x().onTrue(manipulatorSubsystem.getWristRunCommand(WristPositions.HIGH));
 
     driverController.y().onTrue(manipulatorSubsystem.getHomeAllCommand());
 

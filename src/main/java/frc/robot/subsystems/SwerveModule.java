@@ -12,9 +12,8 @@ import com.revrobotics.spark.SparkBase;
 import com.revrobotics.spark.SparkBase.ControlType;
 import com.revrobotics.spark.SparkBase.PersistMode;
 import com.revrobotics.spark.SparkBase.ResetMode;
-import com.revrobotics.spark.config.SparkMaxConfig;
 import com.revrobotics.spark.config.ClosedLoopConfig.FeedbackSensor;
-
+import com.revrobotics.spark.config.SparkMaxConfig;
 import edu.wpi.first.math.geometry.Rotation2d;
 import edu.wpi.first.math.kinematics.SwerveModulePosition;
 import edu.wpi.first.math.kinematics.SwerveModuleState;
@@ -55,8 +54,6 @@ public class SwerveModule {
     this.parkedAngle = swerveModule.getParkAngle();
     this.chassisAngularOffset = swerveModule.getChassisAngularOffset();
 
-    System.out.println(moduleName + " chassisAngularOffset " + chassisAngularOffset);
-
     File directory = new File(Filesystem.getDeployDirectory(), "motors/drive");
 
     try {
@@ -87,7 +84,6 @@ public class SwerveModule {
         pidfField.setAccessible(true);
         Pidf[] pidfs = (Pidf[]) pidfField.get(parser);
         pidfs[0] = pidf;
-        System.out.println("pidf[0] = " + pidfs[0]);
 
         pidfField.set(parser, pidfs);
       } catch (Exception ex) {
@@ -95,8 +91,6 @@ public class SwerveModule {
       }
 
       driveMotor = parser.configureAsync();
-
-      System.out.println("Swerve module " + swerveModule.moduleName + " drive motor configured.");
 
     } catch (IOException exception) {
       throw new RuntimeException("Failed to configure drive motor!", exception);
@@ -107,7 +101,7 @@ public class SwerveModule {
           new MotorParser(directory)
               .withMotor(swerveModule.moduleName + "pivot.json")
               .withPidf(swerveModule.moduleName + "pivot_pidf.json");
-              /* 
+      /*
       try {
         // Field encoderField = MotorParser.class.getDeclaredField("encoder");
         // encoderField.setAccessible(true);
@@ -124,7 +118,6 @@ public class SwerveModule {
       }
         */
       pivotMotor = parser.configureAsync();
-      System.out.println("Swerve module " + swerveModule.moduleName + " pivot motor configured.");
     } catch (IOException exception) {
       throw new RuntimeException("Failed to configure pivot motor!", exception);
     }
@@ -134,8 +127,9 @@ public class SwerveModule {
     config.encoder.positionConversionFactor(2 * Math.PI);
     config.closedLoop.feedbackSensor(FeedbackSensor.kAbsoluteEncoder);
 
-    REVLibError err = pivotMotor.configure(config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
-    System.out.println("Result of pivot motor configure: " + err);
+    REVLibError err =
+        pivotMotor.configure(
+            config, ResetMode.kNoResetSafeParameters, PersistMode.kPersistParameters);
 
     this.driveMotorEncoder = driveMotor.getEncoder();
     this.pivotMotorAbsoluteEncoder = pivotMotor.getAbsoluteEncoder();
@@ -221,7 +215,8 @@ public class SwerveModule {
   public SwerveModulePosition getPosition() {
     return new SwerveModulePosition(
         driveMotorEncoder.getPosition(),
-        new Rotation2d(pivotMotorAbsoluteEncoder.getPosition() /* - chassisAngularOffset.getRadians() */ ));
+        new Rotation2d(
+            pivotMotorAbsoluteEncoder.getPosition() /* - chassisAngularOffset.getRadians() */));
   }
 
   public void setParked(boolean mode) {
@@ -243,12 +238,14 @@ public class SwerveModule {
     }
 
     SwerveModuleState desiredState =
-        new SwerveModuleState(state.speedMetersPerSecond, state.angle /* .plus(chassisAngularOffset) */ );
+        new SwerveModuleState(
+            state.speedMetersPerSecond, state.angle /* .plus(chassisAngularOffset) */);
     desiredState.optimize(getSteerAngle());
 
     pivotMotor
         .getClosedLoopController()
-        .setReference(desiredState.angle.getRadians(), ControlType.kPosition, ClosedLoopSlot.kSlot0);
+        .setReference(
+            desiredState.angle.getRadians(), ControlType.kPosition, ClosedLoopSlot.kSlot0);
     driveMotor
         .getClosedLoopController()
         .setReference(desiredState.speedMetersPerSecond, ControlType.kVelocity);

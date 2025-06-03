@@ -144,8 +144,7 @@ public class MotorConfigurator {
    * @throws IllegalArgumentException if the encoder type is unsupported
    */
   public MotorConfigurator withEncoder(Encoder encoder) {
-    // encoder.getInverted().ifPresent(config.encoder::inverted);
-    // encoder.getInitialPosition().ifPresent(spark.getEncoder()::setPosition);
+    encoder.getInitialPosition().ifPresent(spark.getEncoder()::setPosition);
     encoder.getConversionFactor().ifPresent(this::configureConversionFactor);
 
     return this;
@@ -157,10 +156,6 @@ public class MotorConfigurator {
    * @param conversionFactor the {@link ConversionFactor} dataclass containing conversion factors
    */
   private void configureConversionFactor(ConversionFactor conversionFactor) {
-    conversionFactor
-        .getPosition()
-        .ifPresent(p -> System.out.println("Position Conversion Factor : " + p));
-
     conversionFactor.getPosition().ifPresent(config.encoder::positionConversionFactor);
     conversionFactor.getVelocity().ifPresent(config.encoder::velocityConversionFactor);
   }

@@ -166,13 +166,13 @@ public class DriveSubsystem extends SubsystemBase {
    * @return An array containing the swerve modules, ordered.
    */
   private SwerveModule[] getSwerveModules() {
-   // return (SwerveModule[]) swerveModules.values().toArray(new SwerveModule[4]);
-   return new SwerveModule[] {
-    swerveModules.get(SwerveCorner.FRONT_LEFT),
-    swerveModules.get(SwerveCorner.FRONT_RIGHT),
-    swerveModules.get(SwerveCorner.BACK_LEFT),
-    swerveModules.get(SwerveCorner.BACK_RIGHT)
-   };
+    // return (SwerveModule[]) swerveModules.values().toArray(new SwerveModule[4]);
+    return new SwerveModule[] {
+      swerveModules.get(SwerveCorner.FRONT_LEFT),
+      swerveModules.get(SwerveCorner.FRONT_RIGHT),
+      swerveModules.get(SwerveCorner.BACK_LEFT),
+      swerveModules.get(SwerveCorner.BACK_RIGHT)
+    };
   }
 
   /**
@@ -314,10 +314,18 @@ public class DriveSubsystem extends SubsystemBase {
    * @return The positions.
    */
   public SwerveModulePosition[] getModulePositions() {
-    return (SwerveModulePosition[])
-        Arrays.stream(getSwerveModules())
-            .map(module -> module.getPosition())
-            .toArray(SwerveModulePosition[]::new);
+    SwerveModulePosition[] positions = new SwerveModulePosition[4];
+
+    positions[0] = swerveModules.get(SwerveCorner.FRONT_LEFT).getPosition();
+    positions[1] = swerveModules.get(SwerveCorner.FRONT_RIGHT).getPosition();
+    positions[2] = swerveModules.get(SwerveCorner.BACK_LEFT).getPosition();
+    positions[3] = swerveModules.get(SwerveCorner.BACK_RIGHT).getPosition();
+
+    return positions;
+    // return (SwerveModulePosition[])
+    //    Arrays.stream(getSwerveModules())
+    //        .map(module -> module.getPosition())
+    //        .toArray(SwerveModulePosition[]::new);
   }
 
   /**

@@ -95,7 +95,6 @@ public class MotorParser {
 
     this.pidfs[slot] = jsonMapper.readValue(getFile(filePath), Pidf.class);
 
-    System.out.println("PIDF: p " + this.pidfs[slot].getP().get());
     return this;
   }
 

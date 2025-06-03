@@ -82,8 +82,9 @@ public class RollerSubsystem extends SubsystemBase {
   }
 
   public boolean hasCube() {
-    double adjustedOutput = medianFilter.calculate(motor.getOutputCurrent());
-    return motorEncoder.getVelocity() < 0 && (adjustedOutput > 40);
+    return false;
+    // double adjustedOutput = medianFilter.calculate(motor.getOutputCurrent());
+    // return motorEncoder.getVelocity() < 0 && (adjustedOutput > 40);
   }
 
   /**

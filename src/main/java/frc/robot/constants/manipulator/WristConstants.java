@@ -18,9 +18,9 @@ public class WristConstants {
   public enum WristPositions {
     HOME(-2), // TODO: hack, fix it
     TOP(10),
-    HIGH(17),
-    MIDDLE(24),
-    BOTTOM(33.5);
+    HIGH(25),
+    MIDDLE(30),
+    BOTTOM(54.0);
 
     private final double position;
 
